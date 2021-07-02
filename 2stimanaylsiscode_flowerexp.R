@@ -337,18 +337,18 @@ dissimplot_temporal_subject <- function(dftrials, flowers){
 
 
 
-# CORRELATION BETWEEN PASSES 
+# CORRELATION BETWEEN PASSES
 
 
 matrixcor_pear <- function(dftrials){
-  
+
   matrix1 <- df2mat.full(dftrials[which(dftrials$trialnumber<=162),])
   matrix2 <- df2mat.full(dftrials[which(dftrials$trialnumber>=163),])
   return(cor(c(matrix1), c(matrix2), method = "pearson"))
 }
 
 matrixcor_spear <- function(dftrials){
-  
+
   matrix1 <- df2mat.full(dftrials[which(dftrials$trialnumber<=162),])
   matrix2 <- df2mat.full(dftrials[which(dftrials$trialnumber>=163),])
   return(cor(c(matrix1), c(matrix2), method = "spearman"))
@@ -357,15 +357,15 @@ matrixcor_spear <- function(dftrials){
 matrixcor_spear(subjectdf)
 
 pass_compare_list_plot <- function(dftrials){
-  
+
   subjectlist <- sort(unique(dftrials$ID)) # obtain a list of all the subjects
-  
+
   correlation_list <- vector() # array to store the values in
-  
+
   for (ID in subjectlist){ # go through subject by subject
     subjectdf <-  dftrials[which(dftrials$ID == ID),]  # select the ID for subject of interest
     correlation_list <- c(correlation_list, (matrixcor_pear(subjectdf)))
-    
+
     plot <- plot(correlation_list, main = '1st and 2nd pass Pearson correlation - r',
                  xlab='Participant',ylab='r',xlim=c(1,14),pch = 21, col="black")
     axis <- axis(1,seq(1,14,1))
@@ -387,23 +387,23 @@ library(lattice)
 # Asymmtery matrix temporal
 
 df2mat_asymmetry_temporal <- function(dftrials){
-  
+
   datatemp <- dissimdata2(dftrials, flowers)
-  
+
   # aggregate over the remaining columns of interest
   nmdsdata <- aggregate(datatemp, by = list(datatemp$Flower1, datatemp$Flower2),FUN=mean)
   nmdsdata$Flower1 <- nmdsdata$Group.1
   nmdsdata$Flower2 <- nmdsdata$Group.2
-  
+
   nmdsdata = subset(nmdsdata, select = c("Flower1","Flower2","similarity"))  # get rid of unnecessary columns
   nmdsmatrix <- spread(nmdsdata, Flower1, similarity) # convert the dataframe to a matrix
-  nmdsmatrix <- data.matrix(nmdsmatrix) # change first column from colour to number(just some label stuff) 
+  nmdsmatrix <- data.matrix(nmdsmatrix) # change first column from colour to number(just some label stuff)
   nmdsmatrix <- nmdsmatrix[,-1] # get rid of the labels in the first column, it messes up the code
-  
+
   matdf<-  as.data.frame(nmdsmatrix - t(nmdsmatrix)) # calculate the asymmetry
   matdf$flowersset <- c(flowers) # adding additional column "colorset"
   num_flowers <- length(flowers)
-  matdf <- matdf %>% gather(otherflowers,asymmetry ,1:num_flowers) # convert the matrix back to the data frame which has the 
+  matdf <- matdf %>% gather(otherflowers,asymmetry ,1:num_flowers) # convert the matrix back to the data frame which has the
   return(matdf)
 }
 
@@ -414,17 +414,17 @@ dftrials <- dftrials[which(dftrials$ID!=7),]
 asymmetry_plot_temporal <- function(subjectdf, flowers){
 
   datatemp <- df2mat_asymmetry_temporal(subjectdf)
-  
+
   # refactor the levels so they can be plotted properly later if need be
   datatemp$flowersset <- with(datatemp, factor(flowersset, levels = flowers))
   datatemp$otherflowers <- with(datatemp, factor(otherflowers, levels = flowers))
-  
+
   plot <- ggplot(datatemp, aes(x = flowersset, y = otherflowers)) +
     theme(axis.text.x = element_text(), axis.text.y = element_text(),
           axis.title.x = element_blank(), axis.title.y = element_blank(),
           #axis.title.x = element_text("left"), axis.title.y = element_text("right"),
           plot.title = element_text(hjust = 0.5))
-  
+
   # stuff that's standard across plot types
   plot <- plot + geom_raster(aes(fill = asymmetry)) +
     labs(title = 'Presented - Response Screen') +
@@ -435,28 +435,28 @@ asymmetry_plot_temporal <- function(subjectdf, flowers){
 asymmetry_plot_temporal(dftrials, flowers)
 
 
-# Plot an asymmetry matrix for all subjects 
+# Plot an asymmetry matrix for all subjects
 asymmetry_plot_temporal_subject <- function(dftrials, flowers){
-  
+
   IDs <- unique(dftrials$ID)
   plot_list <- list()
-  
+
   for (ID in IDs){
     #Subset data for the subject
-    
-  subjectdf = dftrials[which(dftrials$ID == ID),] 
+
+  subjectdf = dftrials[which(dftrials$ID == ID),]
   datatemp <- df2mat_asymmetry_temporal(subjectdf)
-  
+
   # refactor the levels so they can be plotted properly later if need be
   datatemp$flowersset <- with(datatemp, factor(flowersset, levels = flowers))
   datatemp$flowerscolor <- with(datatemp, factor(otherflowers, levels = flowers))
-  
+
   plot <- ggplot(datatemp, aes(x = flowersset, y = otherflowers)) +
     theme(axis.text.x = element_text(), axis.text.y = element_text(),
           axis.title.x = element_blank(), axis.title.y = element_blank(),
           plot.title = element_text(hjust = 0.5))+
     ggtitle(paste("Subject ID:", ID))
-  
+
   # stuff that's standard across plot types
   plot <- plot + geom_raster(aes(fill = asymmetry)) +
     scale_fill_gradientn(colours = c("blue","white","red"), limits = c(-4,4)) +
@@ -467,7 +467,7 @@ asymmetry_plot_temporal_subject <- function(dftrials, flowers){
   plot_grob <- arrangeGrob(grobs=plot_list)
   return(grid.arrange(plot_grob))
 }
-  
+
 
 asymmetry_plot_temporal_subject(dftrials, flowers)
 
