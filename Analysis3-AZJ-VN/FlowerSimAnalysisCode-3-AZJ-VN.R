@@ -149,6 +149,7 @@ simhistplot <- function(datadf){
     ylab('Frequency') + ylim(0,0.8)
   return(plot)
 }
+simhistplot(datadf)
 
 simhistplot_summary <- function(datadf){
   
@@ -162,6 +163,7 @@ simhistplot_summary <- function(datadf){
   return(plot)
   
 }
+## simhistplot_summary(datadf) - gives ERROR Error in `$<-.data.frame`(`*tmp*`, ID, value = character(0)) : replacement has 0 rows, data has 7 
 
 # reaction time for each similarity
 
@@ -176,7 +178,7 @@ rsplot <- function(datadf){
   
   return(plot)
 }
-
+rsplot(datadf)
 
 rsplot_all <- function(data){
   subjectlist <- sort(unique(dftrials$ID))
@@ -187,6 +189,9 @@ rsplot_all <- function(data){
     return(plot)
   }
 }
+rsplot_all(data)
+
+
 
 # factor the dataframes for the plot function
 # Do I really need this? Is it for asymmetry?
@@ -201,7 +206,7 @@ dissimdata2 <- function(dftrials, flowers){
 
 dissimdata2(dftrials, flowers)
 
-#What does this do? #used later for correlation between passes
+# aggregates similarity judgments # also used later for correlation between passes
 df2mat.full <- function(dftrials){
   
   
@@ -320,3 +325,41 @@ pass_compare_list_plot <- function(dftrials){
 }
 
 pass_compare_list_plot(dftrials)
+
+#mean reaction time vs. catch trial score
+rt_catch <- function (dftrials){
+  
+  subjectlist <- sort(unique(dftrials$ID)) # obtain a list of all the subjects
+  
+  for (ID in subjectlist){ # go through subject by subject
+    tempdf <- subset(dftrials, participant== ID)
+    dftrials$catch_trial_checker[dftrials$participant == ID] = unlist(catch_trial_checker(tempdf),use.names=FALSE)[1]
+  }
+  dftrials<- aggregate(dftrials, by=list(dftrials$participant), FUN = mean)
+  return(dftrials)
+}    
+rt_catch(dftrials)
+
+rt_catch_plot <- function(dftrials,xtype='linear',label=FALSE){
+  
+  dftrials <- rt_catch(dftrials)
+  dftrials$subject <- as.character(dftrials$subject) # necessary for visualisation
+  
+  plot <- ggplot (dftrials, aes(x=response_time, y=catch_trial_checker)) +
+    geom_point() + xlab ("Mean Reaction Time") + ylab("Catch Score")
+  if(xtype == 'log'){
+    plot <- plot + scale_x_continuous(trans='log10') + xlim(0,5000)
+  } else{
+    plot <- plot + xlim(0,5000)
+  }
+  plot <- plot + geom_smooth(method=lm) + ylim(0,1) # Linear Line of best fit
+  #plot <- plot + geom_point(aes(color = subject))
+  if (label){
+    plot <- plot + geom_text(aes(label = subject),check_overlap=TRUE)
+  }
+  return (plot)
+}
+rt_catch_plot(dftrials,xtype='linear',label=FALSE)
+
+
+
