@@ -11,7 +11,7 @@
 
 <meta name="author" content="vinay" />
 
-<meta name="date" content="2021-07-02" />
+<meta name="date" content="2021-07-12" />
 
 <title>2stimanaylsiscode_flowerexp.R</title>
 
@@ -167,7 +167,7 @@ pre code {
 
 <h1 class="title toc-ignore">2stimanaylsiscode_flowerexp.R</h1>
 <h4 class="author">vinay</h4>
-<h4 class="date">2021-07-02</h4>
+<h4 class="date">2021-07-12</h4>
 
 </div>
 
@@ -6462,139 +6462,173 @@ dissimplot_temporal_subject &lt;- function(dftrials, flowers){
 
 
 
-# # CORRELATION BETWEEN PASSES 
-# 
-# 
-# matrixcor_pear &lt;- function(dftrials){
-#   
-#   matrix1 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&lt;=162),])
-#   matrix2 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&gt;=163),])
-#   return(cor(c(matrix1), c(matrix2), method = &quot;pearson&quot;))
-# }
-# 
-# matrixcor_spear &lt;- function(dftrials){
-#   
-#   matrix1 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&lt;=162),])
-#   matrix2 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&gt;=163),])
-#   return(cor(c(matrix1), c(matrix2), method = &quot;spearman&quot;))
-# }
-# 
-# matrixcor_spear(subjectdf)
-# 
-# pass_compare_list_plot &lt;- function(dftrials){
-#   
-#   subjectlist &lt;- sort(unique(dftrials$ID)) # obtain a list of all the subjects
-#   
-#   correlation_list &lt;- vector() # array to store the values in
-#   
-#   for (ID in subjectlist){ # go through subject by subject
-#     subjectdf &lt;-  dftrials[which(dftrials$ID == ID),]  # select the ID for subject of interest
-#     correlation_list &lt;- c(correlation_list, (matrixcor_pear(subjectdf)))
-#     
-#     plot &lt;- plot(correlation_list, main = &#39;1st and 2nd pass Pearson correlation - r&#39;,
-#                  xlab=&#39;Participant&#39;,ylab=&#39;r&#39;,xlim=c(1,14),pch = 21, col=&quot;black&quot;)
-#     axis &lt;- axis(1,seq(1,14,1))
-#   }
-#   return(correlation_list)
-#   return(plot)
-#   return(axis)
-# }
-# 
-# 
-# 
-# 
-# library(gridExtra)
-# library(grid)
-# library(ggplot2)
-# library(lattice)
-# 
-# 
-# # Asymmtery matrix temporal
-# 
-# df2mat_asymmetry_temporal &lt;- function(dftrials){
-#   
-#   datatemp &lt;- dissimdata2(dftrials, flowers)
-#   
-#   # aggregate over the remaining columns of interest
-#   nmdsdata &lt;- aggregate(datatemp, by = list(datatemp$Flower1, datatemp$Flower2),FUN=mean)
-#   nmdsdata$Flower1 &lt;- nmdsdata$Group.1
-#   nmdsdata$Flower2 &lt;- nmdsdata$Group.2
-#   
-#   nmdsdata = subset(nmdsdata, select = c(&quot;Flower1&quot;,&quot;Flower2&quot;,&quot;similarity&quot;))  # get rid of unnecessary columns
-#   nmdsmatrix &lt;- spread(nmdsdata, Flower1, similarity) # convert the dataframe to a matrix
-#   nmdsmatrix &lt;- data.matrix(nmdsmatrix) # change first column from colour to number(just some label stuff) 
-#   nmdsmatrix &lt;- nmdsmatrix[,-1] # get rid of the labels in the first column, it messes up the code
-#   
-#   matdf&lt;-  as.data.frame(nmdsmatrix - t(nmdsmatrix)) # calculate the asymmetry
-#   matdf$flowersset &lt;- c(flowers) # adding additional column &quot;colorset&quot;
-#   num_flowers &lt;- length(flowers)
-#   matdf &lt;- matdf %&gt;% gather(otherflowers,asymmetry ,1:num_flowers) # convert the matrix back to the data frame which has the 
-#   return(matdf)
-# }
-# 
+# CORRELATION BETWEEN PASSES
+
+
+matrixcor_pear &lt;- function(dftrials){
+
+  matrix1 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&lt;=162),])
+  matrix2 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&gt;=163),])
+  return(cor(c(matrix1), c(matrix2), method = &quot;pearson&quot;))
+}
+
+matrixcor_spear &lt;- function(dftrials){
+
+  matrix1 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&lt;=162),])
+  matrix2 &lt;- df2mat.full(dftrials[which(dftrials$trialnumber&gt;=163),])
+  return(cor(c(matrix1), c(matrix2), method = &quot;spearman&quot;))
+}
+
+#matrixcor_spear(subjectdf)
+#commented out
+
+pass_compare_list_plot &lt;- function(dftrials){
+
+  subjectlist &lt;- sort(unique(dftrials$ID)) # obtain a list of all the subjects
+
+  correlation_list &lt;- vector() # array to store the values in
+
+  for (ID in subjectlist){ # go through subject by subject
+    subjectdf &lt;-  dftrials[which(dftrials$ID == ID),]  # select the ID for subject of interest
+    correlation_list &lt;- c(correlation_list, (matrixcor_pear(subjectdf)))
+
+    plot &lt;- plot(correlation_list, main = &#39;1st and 2nd pass Pearson correlation - r&#39;,
+                 xlab=&#39;Participant&#39;,ylab=&#39;r&#39;,xlim=c(1,14),pch = 21, col=&quot;black&quot;)
+    axis &lt;- axis(1,seq(1,14,1))
+  }
+  return(correlation_list)
+  return(plot)
+  return(axis)
+}
+
+
+
+
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+
+
+# Asymmtery matrix temporal
+
+df2mat_asymmetry_temporal &lt;- function(dftrials){
+
+  datatemp &lt;- dissimdata2(dftrials, flowers)
+
+  # aggregate over the remaining columns of interest
+  nmdsdata &lt;- aggregate(datatemp, by = list(datatemp$Flower1, datatemp$Flower2),FUN=mean)
+  nmdsdata$Flower1 &lt;- nmdsdata$Group.1
+  nmdsdata$Flower2 &lt;- nmdsdata$Group.2
+
+  nmdsdata = subset(nmdsdata, select = c(&quot;Flower1&quot;,&quot;Flower2&quot;,&quot;similarity&quot;))  # get rid of unnecessary columns
+  nmdsmatrix &lt;- spread(nmdsdata, Flower1, similarity) # convert the dataframe to a matrix
+  nmdsmatrix &lt;- data.matrix(nmdsmatrix) # change first column from colour to number(just some label stuff)
+  nmdsmatrix &lt;- nmdsmatrix[,-1] # get rid of the labels in the first column, it messes up the code
+
+  matdf&lt;-  as.data.frame(nmdsmatrix - t(nmdsmatrix)) # calculate the asymmetry
+  matdf$flowersset &lt;- c(flowers) # adding additional column &quot;colorset&quot;
+  num_flowers &lt;- length(flowers)
+  matdf &lt;- matdf %&gt;% gather(otherflowers,asymmetry ,1:num_flowers) # convert the matrix back to the data frame which has the
+  return(matdf)
+}
+# VN: no need for asymmetry
 # df2mat_asymmetry_temporal(dftrials)
-# 
-# dftrials &lt;- dftrials[which(dftrials$ID!=7),]
-# # plot an asymmetry matrix for all data
-# asymmetry_plot_temporal &lt;- function(subjectdf, flowers){
-# 
-#   datatemp &lt;- df2mat_asymmetry_temporal(subjectdf)
-#   
-#   # refactor the levels so they can be plotted properly later if need be
-#   datatemp$flowersset &lt;- with(datatemp, factor(flowersset, levels = flowers))
-#   datatemp$otherflowers &lt;- with(datatemp, factor(otherflowers, levels = flowers))
-#   
-#   plot &lt;- ggplot(datatemp, aes(x = flowersset, y = otherflowers)) +
-#     theme(axis.text.x = element_text(), axis.text.y = element_text(),
-#           axis.title.x = element_blank(), axis.title.y = element_blank(),
-#           #axis.title.x = element_text(&quot;left&quot;), axis.title.y = element_text(&quot;right&quot;),
-#           plot.title = element_text(hjust = 0.5))
-#   
-#   # stuff that&#39;s standard across plot types
-#   plot &lt;- plot + geom_raster(aes(fill = asymmetry)) +
-#     labs(title = &#39;Presented - Response Screen&#39;) +
-#     scale_fill_gradientn(colours = c(&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;), limits = c(-4,4)) +
-#     guides(fill=guide_legend(title=&quot;Dissimilarity\nAsymmetry&quot;))
-#   return(plot)
-# }
+
+dftrials &lt;- dftrials[which(dftrials$ID!=7),]
+# plot an asymmetry matrix for all data
+asymmetry_plot_temporal &lt;- function(subjectdf, flowers){
+
+  datatemp &lt;- df2mat_asymmetry_temporal(subjectdf)
+
+  # refactor the levels so they can be plotted properly later if need be
+  datatemp$flowersset &lt;- with(datatemp, factor(flowersset, levels = flowers))
+  datatemp$otherflowers &lt;- with(datatemp, factor(otherflowers, levels = flowers))
+
+  plot &lt;- ggplot(datatemp, aes(x = flowersset, y = otherflowers)) +
+    theme(axis.text.x = element_text(), axis.text.y = element_text(),
+          axis.title.x = element_blank(), axis.title.y = element_blank(),
+          #axis.title.x = element_text(&quot;left&quot;), axis.title.y = element_text(&quot;right&quot;),
+          plot.title = element_text(hjust = 0.5))
+
+  # stuff that&#39;s standard across plot types
+  plot &lt;- plot + geom_raster(aes(fill = asymmetry)) +
+    labs(title = &#39;Presented - Response Screen&#39;) +
+    scale_fill_gradientn(colours = c(&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;), limits = c(-4,4)) +
+    guides(fill=guide_legend(title=&quot;Dissimilarity\nAsymmetry&quot;))
+  return(plot)
+}
+# VN: no need for asymmetry
 # asymmetry_plot_temporal(dftrials, flowers)
-# 
-# 
-# # Plot an asymmetry matrix for all subjects 
-# asymmetry_plot_temporal_subject &lt;- function(dftrials, flowers){
-#   
-#   IDs &lt;- unique(dftrials$ID)
-#   plot_list &lt;- list()
-#   
-#   for (ID in IDs){
-#     #Subset data for the subject
-#     
-#   subjectdf = dftrials[which(dftrials$ID == ID),] 
-#   datatemp &lt;- df2mat_asymmetry_temporal(subjectdf)
-#   
-#   # refactor the levels so they can be plotted properly later if need be
-#   datatemp$flowersset &lt;- with(datatemp, factor(flowersset, levels = flowers))
-#   datatemp$flowerscolor &lt;- with(datatemp, factor(otherflowers, levels = flowers))
-#   
-#   plot &lt;- ggplot(datatemp, aes(x = flowersset, y = otherflowers)) +
-#     theme(axis.text.x = element_text(), axis.text.y = element_text(),
-#           axis.title.x = element_blank(), axis.title.y = element_blank(),
-#           plot.title = element_text(hjust = 0.5))+
-#     ggtitle(paste(&quot;Subject ID:&quot;, ID))
-#   
-#   # stuff that&#39;s standard across plot types
-#   plot &lt;- plot + geom_raster(aes(fill = asymmetry)) +
-#     scale_fill_gradientn(colours = c(&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;), limits = c(-4,4)) +
-#     guides(fill=guide_legend(title=&quot;Dissimilarity\nAsymmetry&quot;))
-# 
-#   plot_list[[ID]] &lt;- plot
-#   }
-#   plot_grob &lt;- arrangeGrob(grobs=plot_list)
-#   return(grid.arrange(plot_grob))
-# }
-#   
-# 
-# asymmetry_plot_temporal_subject(dftrials, flowers)</code></pre>
+
+
+# Plot an asymmetry matrix for all subjects
+asymmetry_plot_temporal_subject &lt;- function(dftrials, flowers){
+
+  IDs &lt;- unique(dftrials$ID)
+  plot_list &lt;- list()
+
+  for (ID in IDs){
+    #Subset data for the subject
+
+  subjectdf = dftrials[which(dftrials$ID == ID),]
+  datatemp &lt;- df2mat_asymmetry_temporal(subjectdf)
+
+  # refactor the levels so they can be plotted properly later if need be
+  datatemp$flowersset &lt;- with(datatemp, factor(flowersset, levels = flowers))
+  datatemp$flowerscolor &lt;- with(datatemp, factor(otherflowers, levels = flowers))
+
+  plot &lt;- ggplot(datatemp, aes(x = flowersset, y = otherflowers)) +
+    theme(axis.text.x = element_text(), axis.text.y = element_text(),
+          axis.title.x = element_blank(), axis.title.y = element_blank(),
+          plot.title = element_text(hjust = 0.5))+
+    ggtitle(paste(&quot;Subject ID:&quot;, ID))
+
+  # stuff that&#39;s standard across plot types
+  plot &lt;- plot + geom_raster(aes(fill = asymmetry)) +
+    scale_fill_gradientn(colours = c(&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;), limits = c(-4,4)) +
+    guides(fill=guide_legend(title=&quot;Dissimilarity\nAsymmetry&quot;))
+
+  plot_list[[ID]] &lt;- plot
+  }
+  plot_grob &lt;- arrangeGrob(grobs=plot_list)
+  return(grid.arrange(plot_grob))
+}
+
+# VN: no need for asymmetry
+# asymmetry_plot_temporal_subject(dftrials, flowers)
+
+#mean reaction time vs. catch triaL score
+rt_catch &lt;- function (datadf ){
+  subjectlist &lt;- sort (unique(datadf$subject) ) #obtain a List of aLL the subjects
+  
+  for (ID in subjectlist){
+    tempdf &lt;- subset (datadf, subject == ID)
+    datadf$catch_score[datadf$subject == ID] = unlist (catch_score (tempdf),use.names=FALSE ) [l]
+  }
+    datadf &lt;- aggregate (datadf, by=list (datadf$subject ), FUN = mean )
+  return (datadf)
+}    
+
+rt_catch_plot &lt;- function (datadf,xtype=&#39;linear&#39;,label=FALSE){
+
+  datadf &lt;- rt_catch (datadf)
+  datadf$subject &lt;- as.character (datadf$subject ) # necessary for visuaLisation
+  
+  plot &lt;- ggplot (datadf, aes (x=response_time, y=catch_score) ) +
+          geom_point () + xlab ( &quot;Mean Reaction Time&quot; ) + ylab(&quot;Catch Score&quot; )
+  if(xtype == &#39;log&#39;){
+    plot &lt;- plot + scale_x_continuous (trans= &#39;log10&#39; )+ xlim(0,5000)
+  } else{
+    plot&lt;- plot + xlim(0,5000)
+  }
+  plot &lt;- plot + geom_smooth (method=lm ) + ylim(e, l ) # Linear Line of best fit
+  #pLot &lt;- pLot + geom_point(aes(coLor = subject))
+  if (label){
+    plot &lt;- plot + geom_text (aes ( label = subject),check_overlap=TRUE )
+  }
+  return (plot )
+}</code></pre>
 
 
 
